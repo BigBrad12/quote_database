@@ -16,10 +16,10 @@ function displayMatches() {
       const quoteText = quote.text.replace(regex, `<span class="hl">${searchValue}</span>`);
       const authorName = quote.author.replace(regex, `<span class="hl">${searchValue}</span>`);
       return `
-        <li>
-          <span class="name">${authorName}</span>
-          <span class="author">${quoteText}</span>
-        </li>
+      <div class="result">
+        <p>${authorName}: </p>
+        <div><p>${quoteText}</p></div>
+      </div>
       `;
     }).join('');
     $('.suggestions').html(html);
