@@ -1,0 +1,11 @@
+{
+  "name": "quotedatabase",
+  "version": "1.0.0",
+  "description": "",
+  "main": "type-ahead.js",
+  "scripts": {
+    "start": "node type-ahead.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
