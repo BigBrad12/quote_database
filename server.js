@@ -10,7 +10,7 @@ app.listen(process.env.PORT || 3000, () => {
 
 let quotes = [];
 
-fs.readFile('stoic-quotes.json', 'utf8', (err, data) => {
+fs.readFileSync('stoic-quotes.json', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return;

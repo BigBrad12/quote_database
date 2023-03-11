@@ -7,32 +7,27 @@ function findMatches(wordToMatch, quotes) {
 }
 
 function displayMatches() {
-  const searchTerm = this.value;
-  fetch(`/quotes?searchTerm=${searchTerm}`)
-    .then(response => response.json())
-    .then(matchingQuotes => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const html = matchingQuotes.map(quote => {
-            return `
-              <div class="result">
-                <p>${quote.author}: </p>
-                <div><p>${quote.text}</p></div>
-              </div>
-            `;
-          }).join('');
-          suggestions.innerHTML = html;
-          resolve();
-        }, 2000); // Wait for 500 milliseconds before rendering the quotes
-      });
+  const matchArray = findMatches(this.value, quotes);
+  const html = matchArray
+    .map((quote) => {
+      const regex = new RegExp(this.value, 'gi');
+      const quoteText = quote.text.replace(regex, `<span class="hl">${this.value}</span>`);
+      const authorName = quote.author.replace(regex, `<span class="hl">${this.value}</span>`);
+      return `
+        <li>
+          <span class="name">${authorName}</span>
+          <span class="author">${quoteText}</span>
+        </li>
+      `;
     })
-    .catch(error => console.error(error));
+    .join('');
+  suggestions.innerHTML = html;
 }
 
-// Selecting search and suggestions elements
-const searchInput = document.querySelector('.search');
-const suggestions = document.querySelector('.suggestions');
-
 // Event listeners for when search box value is changed or when a key is released
-searchInput.addEventListener('change', displayMatches);
-searchInput.addEventListener('keyup', displayMatches);
+searchInput.addEventListener('input', function () {
+  displayMatches.call(this, quotes);
+});
+searchInput.addEventListener('keyup', function () {
+  displayMatches.call(this, quotes);
+});
