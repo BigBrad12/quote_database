@@ -5,24 +5,31 @@ const $ = require('jquery')
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-let quotes = [];
+const quotesFilePath = 'stoic-quotes.json';
+let quotesData;
 
-fs.readFile('stoic-quotes.json', 'utf8', (err, data) => {
+fs.readFile(quotesFilePath, 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return;
     }
-    quotes = JSON.parse(data);
+    quotesData = JSON.parse(data);
+    console.log(`Loaded ${quotesData.length} quotes from ${quotesFilePath}`);
   app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 });
 
-app.get('/quotes', (req, res) => {
+app.get('/api/quotes', (req, res) => {
     res.setHeader('Connection', 'keep-alive'); // Add this line to keep the connection alive
     const searchTerm = req.query.searchTerm;
-    const regex = new RegExp(searchTerm, 'gi');
-    const matchingQuotes = quotes.filter(quote => regex.test(quote.text) || regex.test(quote.author));
-    res.json(matchingQuotes);
-  });
+    if (!searchTerm) {
+        // Return all quotes if no search term is provided
+        res.json(quotesData);
+        return;
+      }
+      const regex = new RegExp(searchTerm, 'gi');
+      const matchingQuotes = quotesData.filter(quote => regex.test(quote.author) || regex.test(quote.text));
+      res.json(matchingQuotes);
+    });
 
   app.use(express.static(__dirname + '/public', {
     setHeaders: (res, path, stat) => {

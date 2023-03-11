@@ -7,22 +7,26 @@ function findMatches(wordToMatch, quotes) {
 }
 
 function displayMatches() {
-  const matchArray = findMatches(this.value, quotes);
-  const html = matchArray
-    .map((quote) => {
-      const regex = new RegExp(this.value, 'gi');
-      const quoteText = quote.text.replace(regex, `<span class="hl">${this.value}</span>`);
-      const authorName = quote.author.replace(regex, `<span class="hl">${this.value}</span>`);
+  const searchValue = this.value;
+  const apiUrl = `/api/quotes?searchTerm=${searchValue}`;
+  $.get(apiUrl, function(data) {
+    const matchArray = findMatches(searchValue, data);
+    const html = matchArray.map((quote) => {
+      const regex = new RegExp(searchValue, 'gi');
+      const quoteText = quote.text.replace(regex, `<span class="hl">${searchValue}</span>`);
+      const authorName = quote.author.replace(regex, `<span class="hl">${searchValue}</span>`);
       return `
         <li>
           <span class="name">${authorName}</span>
           <span class="author">${quoteText}</span>
         </li>
       `;
-    })
-    .join('');
-  $('.suggestions').html(html);
+    }).join('');
+    $('.suggestions').html(html);
+  });
 }
+
+
 
 // Selecting search and suggestions elements using jQuery selectors
 const searchInput = $('.search');
