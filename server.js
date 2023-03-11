@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const $ = require('jquery')
-const = require('elasticlunr')
+const elasticlunr = require('elasticlunr')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
