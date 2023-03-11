@@ -5,10 +5,6 @@ const $ = require('jquery')
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server listening on port ${process.env.PORT || 3000}`);
-  }); 
-
 let quotes = [];
 
 fs.readFile('stoic-quotes.json', 'utf8', (err, data) => {
