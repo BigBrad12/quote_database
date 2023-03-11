@@ -13,8 +13,8 @@ function displayMatches() {
     const matchArray = findMatches(searchValue, data);
     const html = matchArray.map((quote) => {
       const regex = new RegExp(searchValue, 'gi');
-      const quoteText = quote.text.replace(regex, `<span class="hl">${searchValue}</span>`);
-      const authorName = quote.author.replace(regex, `<span class="hl">${searchValue}</span>`);
+      const quoteText = quote.text.replace(regex, `<span>${searchValue}</span>`);
+      const authorName = quote.author.replace(regex, `<span>${searchValue}</span>`);
       return `
       <div class="result">
         <p>${authorName}: </p>
