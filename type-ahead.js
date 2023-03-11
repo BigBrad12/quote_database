@@ -1,19 +1,3 @@
-// URL for the endpoint to fetch
-const endpoint = 'https://gist.githubusercontent.com/BigBrad12/18658a8bb8555aac3cd5672f0468704a/raw/ea8ca8abee66fa7aab393e25534bd82877b704b5/stoic-quotes.json';
-
-// Empty array to store fetched quotes
-const quotes = [];
-
-// Fetching quotes using 'fetch'
-fetch(endpoint, {
-  method: 'GET',  // Setting HTML request type for fetch
-  headers: {      // Setting headers to fetch
-    'Accept': 'application/json',
-  },
-})
-.then(response => response.json())  // Convert response to JSON
-.then(response => quotes.push(...response));  // Push the response into empty array using spread operator
-
 // Function to find matches, takes in the word to match and the array of quotes
 function findMatches(wordToMatch, quotes) {
   return quotes.filter(quote => {  // Using filter to iterate over array and filter out non-matching quotes
@@ -22,22 +6,27 @@ function findMatches(wordToMatch, quotes) {
   })
 }
 
-// Function to display matched quotes on the webpage
 function displayMatches() {
-  const matchArray = findMatches(this.value, quotes);  // Storing matched quotes in an array and calling findMatches function to get the matches 
-  const html = matchArray.map(quote => {  // Mapping through matched quotes to prepare them for displaying on the DOM
-    if (this.value) {  // Checking if something is inside the search box
-      return `                                                                    
-        <div class="result">
-          <p>${quote.author}: </p>
-          <div><p>${quote.text}</p></div>
-        </div>
-      `;  // Returning each matched dataset into the html var
-    } else {                
-      return '';  // If search box is empty, return nothing to clear the page
-    }
-  }).join('');  // Joining the mapped quotes with no separator to remove the comma or array format 
-  suggestions.innerHTML = html;  // Populating the inner HTML of the suggestions element with the prepared HTML string
+  const searchTerm = this.value;
+  fetch(`/quotes?searchTerm=${searchTerm}`)
+    .then(response => response.json())
+    .then(matchingQuotes => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const html = matchingQuotes.map(quote => {
+            return `
+              <div class="result">
+                <p>${quote.author}: </p>
+                <div><p>${quote.text}</p></div>
+              </div>
+            `;
+          }).join('');
+          suggestions.innerHTML = html;
+          resolve();
+        }, 2000); // Wait for 500 milliseconds before rendering the quotes
+      });
+    })
+    .catch(error => console.error(error));
 }
 
 // Selecting search and suggestions elements
