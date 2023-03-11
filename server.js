@@ -1,6 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -10,7 +12,7 @@ app.listen(process.env.PORT || 3000, () => {
 
 let quotes = [];
 
-fs.readFileSync('stoic-quotes.json', 'utf8', (err, data) => {
+fs.readFile('stoic-quotes.json', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return;

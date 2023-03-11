@@ -24,10 +24,10 @@ function displayMatches() {
   suggestions.innerHTML = html;
 }
 
+// Selecting search and suggestions elements
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
 // Event listeners for when search box value is changed or when a key is released
-searchInput.addEventListener('input', function () {
-  displayMatches.call(this, quotes);
-});
-searchInput.addEventListener('keyup', function () {
-  displayMatches.call(this, quotes);
-});
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
