@@ -29,7 +29,5 @@ const searchInput = $('.search');
 const suggestions = $('.suggestions');
 
 // Event listeners for when search box value is changed or when a key is released
-searchInput.addEventListener('change', displayMatches);
-searchInput.addEventListener('keyup', displayMatches);
 
 searchInput.on('change keyup', displayMatches);
