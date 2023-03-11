@@ -1,7 +1,6 @@
 const express = require('express');
 const fs = require('fs');
-
-
+const $ = require('jquery')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,30 +21,34 @@ fs.readFile('stoic-quotes.json', 'utf8', (err, data) => {
 });
 
 app.get('/quotes', (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  const regex = new RegExp(searchTerm, 'gi');
-  const matchingQuotes = quotes.filter(quote => regex.test(quote.text) || regex.test(quote.author));
-  res.json(matchingQuotes);
-  res.end();
-});
-
-app.get('/quotes', (req, res) => {
     res.setHeader('Connection', 'keep-alive'); // Add this line to keep the connection alive
     const searchTerm = req.query.searchTerm;
     const regex = new RegExp(searchTerm, 'gi');
     const matchingQuotes = quotes.filter(quote => regex.test(quote.text) || regex.test(quote.author));
     res.json(matchingQuotes);
-    res.end();
   });
 
-app.use(express.static(__dirname, { 
+  app.use(express.static(__dirname + '/public', {
     setHeaders: (res, path, stat) => {
-      if (path.endsWith('.js')) {
-        res.set('Content-Type', 'application/javascript');
+      const extension = path.split('.').pop();
+      switch (extension) {
+        case 'js':
+          res.set('Content-Type', 'application/javascript');
+          break;
+        case 'css':
+          res.set('Content-Type', 'text/css');
+          break;
+        case 'jpeg':
+        case 'jpg':
+          res.set('Content-Type', 'image/jpeg');
+          break;
+        default:
+          res.set('Content-Type', 'text/plain');
+          break;
       }
     }
   }));
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/quote_database.html');
+    res.sendFile(__dirname + '/public/quote_database.html');
   });

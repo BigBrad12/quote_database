@@ -21,13 +21,15 @@ function displayMatches() {
       `;
     })
     .join('');
-  suggestions.innerHTML = html;
+  $('.suggestions').html(html);
 }
 
-// Selecting search and suggestions elements
-const searchInput = document.querySelector('.search');
-const suggestions = document.querySelector('.suggestions');
+// Selecting search and suggestions elements using jQuery selectors
+const searchInput = $('.search');
+const suggestions = $('.suggestions');
 
 // Event listeners for when search box value is changed or when a key is released
 searchInput.addEventListener('change', displayMatches);
 searchInput.addEventListener('keyup', displayMatches);
+
+searchInput.on('change keyup', displayMatches);
