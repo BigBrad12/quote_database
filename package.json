@@ -4,7 +4,7 @@
   "description": "",
   "main": "type-ahead.js",
   "scripts": {
-    "start": "node type-ahead.js"
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
