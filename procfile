@@ -1,1 +1,1 @@
-web: node type-ahead.js
+web: node server.js
