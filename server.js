@@ -1,78 +1,65 @@
 const express = require('express');
-const fs = require('fs');
-const $ = require('jquery')
-const elasticlunr = require('elasticlunr')
+const $ = require('jquery');
+const { Client } = require('pg');
+
+const client = new Client({
+  connectionString: process.env.DATABASE_URL || `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}@localhost:5432/brad`,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false // only set ssl to true if using Heroku's database
+});
+
+client.connect()
+  .then(() => console.log('Connected to database'))
+  .catch(err => console.error('Failed to connect to database', err));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const quotesFilePath = 'stoic-quotes.json';
-let quotesData;
-let idx;
-
-fs.readFile(quotesFilePath, 'utf8', (err, data) => {
-  if (err) {
-    console.error(err);
+app.get('/api/quotes', async (req, res) => {
+  const searchTerm = req.query.searchTerm;
+  console.log('searchTerm:', searchTerm);
+  if (!searchTerm) {
+    const result = await client.query('SELECT * FROM quotes');
+    res.json(result.rows);
     return;
   }
 
-  quotesData = JSON.parse(data);
-  console.log(`Loaded ${quotesData.length} quotes from ${quotesFilePath}`);
+  try {
+    const result = await client.query('SELECT * FROM quotes WHERE text ILIKE $1 OR author ILIKE $1', [`%${searchTerm}%`]);
+    const searchResults = result.rows.map(row => {
+      return { text: row.text, author: row.author };
+    });
 
-  idx = elasticlunr(function () {
-    this.addField('author');
-    this.addField('text');
-
-    quotesData.forEach(function (quote) {
-      this.addDoc(quote);
-    }, this);
-  });
-
-  app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+    res.json(searchResults);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
-app.get('/api/quotes', (req, res) => {
-  res.setHeader('Connection', 'keep-alive'); // Add this line to keep the connection alive
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
 
-  const searchTerm = req.query.searchTerm;
-  if (!searchTerm) {
-    // Return all quotes if no search term is provided
-    res.json(quotesData);
-    return;
-  }
-
-  const searchResults = idx.search(searchTerm);
-  const matchingQuotes = searchResults.map(function (result) {
-    return quotesData.find(function (quote) {
-      return quote.id === result.ref;
+    app.use(express.static(__dirname + '/public', {
+      setHeaders: (res, path, stat) => {
+        const extension = path.split('.').pop();
+        switch (extension) {
+          case 'js':
+            res.set('Content-Type', 'application/javascript');
+            break;
+          case 'css':
+            res.set('Content-Type', 'text/css');
+            break;
+          case 'jpeg':
+          case 'jpg':
+            res.set('Content-Type', 'image/jpeg');
+            break;
+          default:
+            res.set('Content-Type', 'text/plain');
+            break;
+        }
+      }
+    }));
+    app.get('/', (req, res) => {
+      res.sendFile(__dirname + '/public/quote_database.html');
     });
   });
-
-  res.json(matchingQuotes);
-});
-
-app.use(express.static(__dirname + '/public', {
-  setHeaders: (res, path, stat) => {
-    const extension = path.split('.').pop();
-    switch (extension) {
-      case 'js':
-        res.set('Content-Type', 'application/javascript');
-        break;
-      case 'css':
-        res.set('Content-Type', 'text/css');
-        break;
-      case 'jpeg':
-      case 'jpg':
-        res.set('Content-Type', 'image/jpeg');
-        break;
-      default:
-        res.set('Content-Type', 'text/plain');
-        break;
-    }
-  }
-}));
-
-// Serve index.html
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/quote_database.html');
-});

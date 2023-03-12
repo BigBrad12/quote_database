@@ -1,37 +1,68 @@
-// Function to find matches, takes in the word to match and the array of quotes
-function findMatches(wordToMatch, quotes) {
-  return quotes.filter(quote => {  // Using filter to iterate over array and filter out non-matching quotes
-    const regex = new RegExp(wordToMatch, 'gi');  // Creating a regex, which is global and case-insensitive
-    return quote.author.match(regex) || quote.text.match(regex);  // Returning matches of regex against author and text on array elements
-  })
+var currentPage = 0;
+var pageSize = 100;
+
+function getSearchValue() {
+  return $('.search').val().trim();
 }
 
-function displayMatches() {
-  const searchValue = this.value;
+function displayMatches() 
+{
+  const searchValue = getSearchValue();
+
+  console.log(searchValue);
+
+  if (!searchValue) {
+    $('.suggestions').html("");
+    return;
+  }
+
   const apiUrl = `/api/quotes?searchTerm=${searchValue}`;
-  $.get(apiUrl, function(data) {
-    const matchArray = findMatches(searchValue, data);
-    const html = matchArray.map((quote) => {
-      const regex = new RegExp(searchValue, 'gi');
-      const quoteText = quote.text.replace(regex, `<span>${searchValue}</span>`);
-      const authorName = quote.author.replace(regex, `<span>${searchValue}</span>`);
+  $.get(apiUrl, function (data) {
+    // check if the current page is more than the num of pages for data returned
+    console.log(data.length)
+    const numPages = Math.ceil(data.length / pageSize);
+    console.log(currentPage)
+    if (currentPage > numPages){
+      currentPage = 0;
+    }
+
+    // Calculate the start and end indices for the current page
+    var startIndex = currentPage * pageSize;
+    var endIndex = Math.min(startIndex + pageSize, data.length);
+
+    
+
+    const html = data.slice(startIndex, endIndex).map(quote => {
       return `
-      <div class="result">
-        <p>${authorName}: </p>
-        <div><p>${quoteText}</p></div>
-      </div>
+        <div class="result">
+          <p>${quote.author}: </p>
+          <div><p>"${quote.text}"</p></div>
+        </div>
       `;
     }).join('');
     $('.suggestions').html(html);
+
+    // Update the state of the pagination buttons
+    $('#previous-btn').prop('disabled', currentPage === 0);
+    $('#next-btn').prop('disabled', endIndex >= data.length);
+  }).fail(function () {
+    // Handle AJAX failure
+    $('.suggestions').html('<div class="error">Failed to fetch results.</div>');
   });
 }
+// Event listener for previous button click
+$('#previous-btn').on('click', function() {
+  currentPage--;
+  displayMatches();
+});
 
-
-
-// Selecting search and suggestions elements using jQuery selectors
-const searchInput = $('.search');
-const suggestions = $('.suggestions');
+// Event listener for next button click
+$('#next-btn').on('click', function() {
+  currentPage++;
+  displayMatches();
+});
 
 // Event listeners for when search box value is changed or when a key is released
-
+const searchInput = $('.search');
+const suggestions = $('.suggestions');
 searchInput.on('change keyup', displayMatches);

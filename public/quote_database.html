@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+    <link rel="stylesheet" href="./type-ahead.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
   <body>
   <nav class="navbar">
     <div class="form">
@@ -7,19 +12,15 @@
       <input type="text" class="search" placeholder="Search">
     </div>
   </nav>
-  
 
   <div class="suggestions"></div>
 
-
-  
-  <link rel="stylesheet" href="./type-ahead.css">
-
-  
-
-  <footer class="footer">Here You Are</footer>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <footer class="footer">
+    <button id="previous-btn">Previous</button>
+    <button id="next-btn">Next</button>
+  </footer>
   <script src="./type-ahead.js"></script>
+
 </body>
 
 </html>
